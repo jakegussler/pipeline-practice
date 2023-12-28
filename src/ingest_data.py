@@ -1,26 +1,22 @@
 import pandas as pd
+import os
 import psycopg2
 from sqlalchemy import create_engine
 import argparse
 
 def ingest_data(params):
     print('Running Main Function...Assigning Parameters...')
-    user = params.user
-    password = params.password
-    host = params.host
-    port = params.port
-    db = params.db
-    table_name = params.table_name
+    user = params['user']
+    password = params['password']
+    host = params['host']
+    port = params['port']
+    db = params['db']
+    table_name = params['table_name']
+    raw_data_folder = params['raw_data_folder'] 
     #url = params.url
-    csv_name = 'output.csv'
-    path = params.file_path
+    csv_name = params['csv_name']
+    path = os.path.join(raw_data_folder,csv_name)
 
-    db_config = {
-        'host': host,
-        'dbname': db,
-        'user':user,
-        'password': password
-    }
     print("Creating connection string")
     connection_string = f"postgresql://{user}:{password}@{host}:{port}/{db}"
     print("creating engine")
@@ -29,7 +25,7 @@ def ingest_data(params):
 
     chunksize = 1000
     print(f"Reading CSV at {path}")
-    for i, chunk in enumerate(pd.read.csv(path,chunksize=chunksize)):
+    for i, chunk in enumerate(pd.read_csv(path,chunksize=chunksize)):
         print(f"adding chunk {i}")
         chunk.to_sql(table_name, engine, if_exists='append'  if (i > 0) else 'replace')
     print("All chunks processed")
