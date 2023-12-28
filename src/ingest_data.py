@@ -13,7 +13,6 @@ def ingest_data(params):
     db = params['db']
     table_name = params['table_name']
     raw_data_folder = params['raw_data_folder'] 
-    #url = params.url
     csv_name = params['csv_name']
     path = os.path.join(raw_data_folder,csv_name)
 
@@ -45,8 +44,6 @@ if __name__ == '__main__':
     parser.add_argument('--db', help='database name for postgres')
     parser.add_argument('--table_name', help='name of the table where we will write data to')
     parser.add_argument('--file_path', help='file path where raw data is being stored')
-    #parser.add_argument('--url', help='url of the csv file')
-    #parser.add_argument('--network', help='name of the network')
 
     print('Parsing args...')
     args = parser.parse_args()
