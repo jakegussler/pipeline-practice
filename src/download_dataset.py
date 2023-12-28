@@ -21,8 +21,12 @@ def download_kaggle_dataset(dataset_name, path, output_file_name):
             os.makedirs(path)
 
         #Download the dataset
-        print("Downloading dataset")
-        api.dataset_download_files(dataset_name, path=path, unzip=True)
+        try:
+            print("Downloading dataset")
+            api.dataset_download_files(dataset_name, path=path, unzip=True)
+        except Exception as e:
+            print(f"Download failed: {e}")
+            quit
 
         print(f"Dataset {dataset_name} downloaded successfully to {path}")
 
