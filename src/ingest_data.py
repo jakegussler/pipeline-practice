@@ -10,7 +10,7 @@ def ingest_data(params):
     password = params['password']
     host = params['host']
     port = params['port']
-    db = params['db']
+    db = params['dbname']
     table_name = params['table_name']
     raw_data_folder = params['raw_data_folder'] 
     csv_name = params['csv_name']

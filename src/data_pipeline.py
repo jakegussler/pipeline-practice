@@ -8,6 +8,8 @@ from sqlalchemy import create_engine
 import argparse
 from download_dataset import download_kaggle_dataset
 from ingest_data import ingest_data
+import data_transformations as dt
+import database_connection as dc
 
 
 
@@ -21,7 +23,7 @@ if __name__ == "__main__":
         'password':"root",
         'host':"localhost",
         'port':5432,
-        'db':"netflix_engagement_db",
+        'dbname':"netflix_engagement_db",
         'table_name':"netflix_engagement",
         'raw_data_folder':raw_data_target_path,
         'csv_name':raw_data_file_name
@@ -32,5 +34,7 @@ if __name__ == "__main__":
 
     download_kaggle_dataset(kaggle_dataset,raw_data_target_path, raw_data_file_name)
     ingest_data(postgres_params)
+    dc.create_db_connection(postgres_params)
+    dt.convert_column_to_array(conn, postgres_params['table_name'], postgres_params['column_name'])
 
 
