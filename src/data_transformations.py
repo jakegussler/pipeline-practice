@@ -2,6 +2,13 @@ import psycopg2
 
 
 def convert_column_to_array(conn, table_name, column_name):
+    """
+    Converts a column containing strings in an array format into an actual array
+
+    :param conn: database connection object
+    :param table_name: Name of the table
+    :param column_name: Column to convert
+    """
     try:
         #Create cursor object
         curr = conn.cursor()
@@ -20,6 +27,15 @@ def convert_column_to_array(conn, table_name, column_name):
         print(f"An error occured during transformation convert_column_to_array: {e}")
 
 def explode_column(conn, table_name, column_name, new_table_name, exploded_column_name):
+    """
+    Explodes a column containing an array into separate rows where each value in the array it placed in it's own row.
+
+    :param conn: database connection object
+    :param table_name: name of table in database
+    :param column_name: name of the column containing the array which needs to be exploded
+    :param new_table_name: Name of the new table created created to hold the exploded data
+    :param exploded_column_name: What the column being exploded should be named in the new table
+    """
     try:
         #Get all column names then remove column name that needs to be exploded
         other_columns = get_table_columns(conn, table_name)
@@ -46,6 +62,14 @@ def explode_column(conn, table_name, column_name, new_table_name, exploded_colum
 
 
 def get_table_columns(conn, table_name):
+    """
+    Retrieves a list of table columns from a specified table.
+
+    :param conn: database connection
+    :param table_name: Name of the table
+    :return: list of table columns
+    """
+
     try:
         cur = conn.cursor()
         query = f"""
@@ -65,6 +89,14 @@ def get_table_columns(conn, table_name):
         return[]
     
 def remove_characters(conn,table_name,column_name,characters_to_remove):
+    """
+    Connects to a database and generates a SQL query to remove characters for cleaning
+
+    :param conn: database connection.
+    :param table_name: Name of the table to edit
+    :param column_name: Name of the column to use in the REPLACE statement
+    :characters_to_remove: List of the characters that should be removed from the column
+    """
         
     try:
         #Create cursor object
@@ -91,16 +123,17 @@ def generate_sql_replace_query(table_name,column_name,characters_to_remove, repl
     :param replacement_characters: List or value to replace removed characters with
     :return: SQL query string.
     """
-
+    #Set up components for starting query
     base_query = f"UPDATE {table_name} AS t SET {column_name} = "
     replace_query = f"{column_name}"
 
     
-
+    #Iterate through characters dynamically generating a SQL replace query
     for char in characters_to_remove:
          escaped_char = char.replace("'", "''")
-         #replace_query = f"REPLACE(t.\"{column_name}\",'{char}','{replacement_characters}')"
          replace_query = f"REPLACE({replace_query},'{escaped_char}','{replacement_characters}')"
+
+    #Generate and return final query
     final_query = base_query + replace_query + ";"
     return final_query
 
