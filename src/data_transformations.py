@@ -146,7 +146,7 @@ def rename_columns(conn, table_name):
     try:
         cur = conn.cursor()
         #Select current column names
-        cur.execute(f"SELECT column_name FROM information.schema.columns WHERE table_name = '{table_name}'")    
+        cur.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")    
         
         #Retrieve column names
         columns = cur.fetchall()
@@ -167,6 +167,6 @@ def rename_columns(conn, table_name):
             cur.execute(rename_query)
 
         #Commit changes to database
-        cur.commit()
+        conn.commit()
     except Exception as e:
         print(f"An error occured while renaming columns in {table_name}: {e}")

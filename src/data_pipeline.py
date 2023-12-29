@@ -43,12 +43,17 @@ if __name__ == "__main__":
     conn = dc.create_db_connection(postgres_params)
     try:
         #Rename columns to make lowercase and remove spaces
+        print('Renaming columns...')
         dt.rename_columns(conn,postgres_params['table_name'])
         #Convert Genre column to array datatype
+        print('Converting columns to array...')
         dt.convert_column_to_array(conn, postgres_params['table_name'], "genre")
         #Create new table with exploded genre column
-        dt.explode_column(conn, postgres_params['table_name'], "genre_array", "Exploded_Genre","genre")
-        dt.remove_characters(conn,"Exploded_Genre","genre",["'","[","]"])
+        print('Exploding column...')
+        dt.explode_column(conn, postgres_params['table_name'], "genre_array", "Exploded_Genre","exploded_genre")
+        print('Cleaning genre column...')
+        dt.remove_characters(conn,"Exploded_Genre","exploded_genre",["'","[","]"])
+        print('Closing connection...')
         dc.close_db_connection(conn)
     except Exception as e: 
         print(f"Error occured while applying transformations: {e}")
