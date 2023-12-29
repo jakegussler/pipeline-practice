@@ -50,9 +50,23 @@ if __name__ == "__main__":
         dt.convert_column_to_array(conn, postgres_params['table_name'], "genre")
         #Create new table with exploded genre column
         print('Exploding column...')
-        dt.explode_column(conn, postgres_params['table_name'], "genre_array", "Exploded_Genre","exploded_genre")
+        dt.explode_column(conn, postgres_params['table_name'], "genre_array", "exploded_genre","exploded_genre")
         print('Cleaning genre column...')
-        dt.remove_characters(conn,"Exploded_Genre","exploded_genre",["'","[","]"])
+        #Remove special characters from exploded genre column
+        dt.remove_characters(conn,"exploded_genre","exploded_genre",["'","[","]"])
+        #Create aggregated view for most viewed genres
+        dt.create_aggregated_view(
+            conn,
+            view_name='most_viewed_genres',
+            table_name='exploded_genre',
+            group_by_columns='exploded_genre',
+            aggregate_column='hours_viewed',
+            aggregate_function='SUM',
+            order_by='exploded_genre',
+            order_direction='Desc'
+        )
+
+
         print('Closing connection...')
         dc.close_db_connection(conn)
     except Exception as e: 

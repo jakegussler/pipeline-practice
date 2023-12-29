@@ -172,7 +172,7 @@ def rename_columns(conn, table_name):
         print(f"An error occured while renaming columns in {table_name}: {e}")
 
 
-def create_aggregated_view(conn, view_name, table_name,group_by_columns,aggregate_column,aggregate_function,additional_columns=None,order_by=None,order_direction='DESC',limit = None):
+def create_aggregated_view(conn, view_name, table_name,group_by_columns,aggregate_column,aggregate_function,additional_columns=None,where_column=None, where_condition=None, order_by=None,order_direction='DESC',limit = None):
     try:
         cur = conn.cursor()
         #Base select statement
@@ -182,6 +182,9 @@ def create_aggregated_view(conn, view_name, table_name,group_by_columns,aggregat
 
         #Add group by clause to statement
         query+= f" GROUP BY {', '.join({group_by_columns})}"
+
+        if where_column:
+            query+= f" WHERE {where_column} {where_condition}"
 
         #Check if there is order by clause, add if there is
         if order_by:
@@ -195,6 +198,6 @@ def create_aggregated_view(conn, view_name, table_name,group_by_columns,aggregat
     except Exception as e:
         print(f"An error occured while creating view {view_name}: {e}")
         conn.rollback()
-        
+
 
         
