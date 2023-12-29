@@ -48,7 +48,7 @@ def explode_column(conn, table_name, column_name, new_table_name, exploded_colum
         print(f"Exploding {column_name} into seperate rows")
 
         #Drop the table if it already exists
-        drop_query = f"DROP TABLE IF EXISTS {table_name}"
+        drop_query = f"DROP TABLE IF EXISTS {new_table_name}"
         cur.execute(drop_query)
 
         query = f"""
@@ -142,3 +142,31 @@ def generate_sql_replace_query(table_name,column_name,characters_to_remove, repl
     final_query = base_query + replace_query + ";"
     return final_query
 
+def rename_columns(conn, table_name):
+    try:
+        cur = conn.cursor()
+        #Select current column names
+        cur.execute(f"SELECT column_name FROM information.schema.columns WHERE table_name = '{table_name}'")    
+        
+        #Retrieve column names
+        columns = cur.fetchall()
+
+        #Iterate through the columns
+        for col in columns:
+            original_column_name = col[0]
+            #Set new column name
+            new_column_name = original_column_name.lower().replace(' ', '_')
+            
+            #Check if new column name and old column name are equal
+            if (original_column_name == new_column_name):
+                #Skip if no change is needed
+                continue
+            
+            #SQL Query to rename column
+            rename_query = f"ALTER TABLE {table_name} RENAME COLUMN \"{original_column_name}\" TO \"{new_column_name}\";"
+            cur.execute(rename_query)
+
+        #Commit changes to database
+        cur.commit()
+    except Exception as e:
+        print(f"An error occured while renaming columns in {table_name}: {e}")

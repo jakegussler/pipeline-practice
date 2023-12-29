@@ -14,9 +14,9 @@ import database_connection as dc
 
 if __name__ == "__main__":
 
+
     kaggle_dataset = 'vassyesboy/netflix-engagement-jan-jun-23'
     raw_data_target_path = "C:/Users/jakeg/git/netflix-engagement/pipeline-practice/data/raw"
-
     raw_data_file_name = 'netflix_engagement_raw_data.csv'
     postgres_params = {
         'user':"postgres",
@@ -28,18 +28,29 @@ if __name__ == "__main__":
         'raw_data_folder':raw_data_target_path,
         'csv_name':raw_data_file_name
     }
-    #postgres_url - add this later, not sure if needed yet
-    #Change file path to parameter later
 
+    #Download data from Kaggle and ingest into postgres
+    try:
+        download_kaggle_dataset(kaggle_dataset,raw_data_target_path, raw_data_file_name)
+    except Exception as e:
+        print(f"Error occured while downloading dataset: {e}")
+    try:
+        ingest_data(postgres_params)
+    except Exception as e:
+        print(f"Error occured while ingesting data: {e}")
 
-    download_kaggle_dataset(kaggle_dataset,raw_data_target_path, raw_data_file_name)
-    ingest_data(postgres_params)
+    #Set up connection to database and begin transormations
     conn = dc.create_db_connection(postgres_params)
-    #Convert Genre column to array datatype
-    dt.convert_column_to_array(conn, postgres_params['table_name'], "Genre")
-    #Create new table with exploded genre column
-    dt.explode_column(conn, postgres_params['table_name'], "genre_array", "Exploded_Genre","genre")
-    dt.remove_characters(conn,"Exploded_Genre","genre",["'","[","]"])
-    dc.close_db_connection(conn)
+    try:
+        #Rename columns to make lowercase and remove spaces
+        dt.rename_columns(conn,postgres_params['table_name'])
+        #Convert Genre column to array datatype
+        dt.convert_column_to_array(conn, postgres_params['table_name'], "genre")
+        #Create new table with exploded genre column
+        dt.explode_column(conn, postgres_params['table_name'], "genre_array", "Exploded_Genre","genre")
+        dt.remove_characters(conn,"Exploded_Genre","genre",["'","[","]"])
+        dc.close_db_connection(conn)
+    except Exception as e: 
+        print(f"Error occured while applying transformations: {e}")
 
 
