@@ -20,7 +20,7 @@ if __name__ == "__main__":
     raw_data_file_name = 'netflix_engagement_raw_data.csv'
     postgres_params = {
         'user':"postgres",
-        'password':"admin",
+        'password':"root",
         'host':"localhost",
         'port':5432,
         'dbname':"netflix_engagement_db",
@@ -39,5 +39,6 @@ if __name__ == "__main__":
     dt.convert_column_to_array(conn, postgres_params['table_name'], "Genre")
     #Create new table with exploded genre column
     dt.explode_column(conn, postgres_params['table_name'], "genre_array", "Exploded_Genre")
+    dc.close_db_connection(conn)
 
 
