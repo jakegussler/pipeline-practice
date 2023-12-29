@@ -19,7 +19,7 @@ def convert_column_to_array(conn, table_name, column_name):
     except Exception as e:
         print(f"An error occured during transformation convert_column_to_array: {e}")
 
-def explode_column(conn, table_name, column_name, new_table_name):
+def explode_column(conn, table_name, column_name, new_table_name, exploded_column_name):
     try:
         #Get all column names then remove column name that needs to be exploded
         other_columns = get_table_columns(conn, table_name)
@@ -33,7 +33,7 @@ def explode_column(conn, table_name, column_name, new_table_name):
         query = f"""
         CREATE TABLE {new_table_name} AS
         SELECT
-            UNNEST({column_name}),
+            UNNEST({column_name}) AS {exploded_column_name},
             {', '.join(other_columns)}
         FROM
             {table_name} AS t;
@@ -64,10 +64,21 @@ def get_table_columns(conn, table_name):
         print(f"An error occured: {e}")
         return[]
     
-def remove_characters(conn,table_name,column_name,char):
-        #Create cursor object
-        curr = conn.cursor()
+def remove_characters(conn,table_name,column_name,characters_to_remove):
         
+    try:
+        #Create cursor object
+        cur = conn.cursor()
+        #Generate a sql replace query
+        print("Generating SQL replace query")
+        query = generate_sql_replace_query(table_name,column_name, characters_to_remove,"")
+
+        #Execute and commit query
+        cur.execute(query)
+        conn.commit()
+    except Exception as e:
+        print(f"An error occured {e}")
+
 
 
 def generate_sql_replace_query(table_name,column_name,characters_to_remove, replacement_characters):
@@ -80,11 +91,16 @@ def generate_sql_replace_query(table_name,column_name,characters_to_remove, repl
     :param replacement_characters: List or value to replace removed characters with
     :return: SQL query string.
     """
-    base_query = f"UPDATE {table_name} SET {column_name} = "
+
+    base_query = f"UPDATE {table_name} AS t SET {column_name} = "
     replace_query = f"{column_name}"
 
+    
+
     for char in characters_to_remove:
-         replace_query = f"REPLACE('{char}','{replacement_characters}')"
+         escaped_char = char.replace("'", "''")
+         #replace_query = f"REPLACE(t.\"{column_name}\",'{char}','{replacement_characters}')"
+         replace_query = f"REPLACE({replace_query},'{escaped_char}','{replacement_characters}')"
     final_query = base_query + replace_query + ";"
     return final_query
 

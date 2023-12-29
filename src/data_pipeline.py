@@ -38,7 +38,8 @@ if __name__ == "__main__":
     #Convert Genre column to array datatype
     dt.convert_column_to_array(conn, postgres_params['table_name'], "Genre")
     #Create new table with exploded genre column
-    dt.explode_column(conn, postgres_params['table_name'], "genre_array", "Exploded_Genre")
+    dt.explode_column(conn, postgres_params['table_name'], "genre_array", "Exploded_Genre","genre")
+    dt.remove_characters(conn,"Exploded_Genre","genre",["'","[","]"])
     dc.close_db_connection(conn)
 
 
