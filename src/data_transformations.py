@@ -46,6 +46,11 @@ def explode_column(conn, table_name, column_name, new_table_name, exploded_colum
         #Create cursor object
         cur = conn.cursor()
         print(f"Exploding {column_name} into seperate rows")
+
+        #Drop the table if it already exists
+        drop_query = f"DROP TABLE IF EXISTS {table_name}"
+        cur.execute(drop_query)
+
         query = f"""
         CREATE TABLE {new_table_name} AS
         SELECT
