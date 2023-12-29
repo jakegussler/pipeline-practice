@@ -178,13 +178,14 @@ def create_aggregated_view(conn, view_name, table_name,group_by_columns,aggregat
         #Base select statement
         select_clause = ', '.join(group_by_columns + additional_columns if additional_columns else group_by_columns)
         aggregation = f"{aggregate_function}({aggregate_column}) AS {aggregate_column}"
-        query = f"CREATE OR REPLACE VIEW {view_name} AS {select_clause}, {aggregation} FROM {table_name}"
+        query = f"CREATE OR REPLACE VIEW {view_name} AS SELECT {select_clause}, {aggregation} FROM {table_name}"
 
-        #Add group by clause to statement
-        query+= f" GROUP BY {', '.join({group_by_columns})}"
-
+        #Add where column if applicable
         if where_column:
             query+= f" WHERE {where_column} {where_condition}"
+
+        #Add group by clause to statement
+        query+= f" GROUP BY {', '.join(group_by_columns)}"
 
         #Check if there is order by clause, add if there is
         if order_by:

@@ -59,10 +59,10 @@ if __name__ == "__main__":
             conn,
             view_name='most_viewed_genres',
             table_name='exploded_genre',
-            group_by_columns='exploded_genre',
+            group_by_columns=['exploded_genre'],
             aggregate_column='hours_viewed',
             aggregate_function='SUM',
-            order_by='exploded_genre',
+            order_by='hours_viewed',
             order_direction='Desc'
         )
         #Create aggregated view for most viewed genres in 2023
@@ -70,12 +70,12 @@ if __name__ == "__main__":
             conn,
             view_name='most_viewed_genres_2023_releases',
             table_name='exploded_genre',
-            group_by_columns='exploded_genre',
+            group_by_columns=['exploded_genre'],
             aggregate_column='hours_viewed',
             aggregate_function='SUM',
-            where_column='release_date'
-            where_condition=">= '2023-01-01'"
-            order_by='exploded_genre',
+            where_column='release_date',
+            where_condition=">= '2023-01-01'",
+            order_by='hours_viewed',
             order_direction='Desc'
         )
 
